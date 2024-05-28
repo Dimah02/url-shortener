@@ -1,3 +1,4 @@
+drop database url_shortener;
 create database url_shortener;
 use url_shortener;
 create table url (
@@ -6,6 +7,3 @@ create table url (
     shorturl varchar(255) not null,
     count integer default 0
 );
-
-insert into url (longurl, shorturl)
-values ('https://www.youtube.com/watch?v=SLpUKAGnm-g','123');
