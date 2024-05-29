@@ -78,7 +78,7 @@
 						<td class="px-6 py-4">
 							<form method="POST" action="?/delete">
 								<input type="hidden" name="id" hidden value={url.id} />
-								<button>Delete</button>
+								<button class="text-rose-600">Delete</button>
 							</form>
 						</td>
 					</tr>
