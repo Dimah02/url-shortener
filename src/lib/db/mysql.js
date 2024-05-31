@@ -1,6 +1,6 @@
 // @ts-nocheck
 import mysql from 'mysql2'
-import { DB_USERNAME, DB_PASSWORD, HOST,DB_NAME } from '$env/static/private';
+import { DB_USERNAME, DB_PASSWORD, DB_HOST,DB_NAME } from '$env/static/private';
 import dotenv from 'dotenv'
 dotenv.config();
 
@@ -11,7 +11,7 @@ export function mysqlconnFn(){
         mysqlconn = mysql.createPool({
             user: DB_USERNAME,
             password:DB_PASSWORD,
-            host:HOST,
+            host:DB_HOST,
             database:DB_NAME
         }).promise()
     }
