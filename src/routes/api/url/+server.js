@@ -1,62 +1,45 @@
-import { mysqlconnFn } from "$lib/db/mysql";
+// @ts-nocheck
+import { getAllUrls, addUrl, deleteUrl } from "$lib/db/services";
 
 export const GET = async () => {
-    let mysqlconn = mysqlconnFn();
-
     try {
-
-        let [rows] = await mysqlconn.query("SELECT * FROM url");
-
-        return new Response(JSON.stringify({ data: rows }), { status: 200 });
-
+        const urls = await getAllUrls();
+        return new Response(JSON.stringify({ data: urls }), { status: 200 });
     } catch (error) {
-
         console.error("Got an error!!!");
-
         console.log(error);
-
         return new Response(JSON.stringify({ message: "something went wrong" }), { status: 500 });
     }
-}
+};
 
-// @ts-ignore
 export const POST = async ({ request }) => {
-    let mysqlconn = mysqlconnFn();
-
     try {
         const body = await request.json();
         const url = body.url;
         const key = body.key;
-        console.log(url)
-        let [rows] = await mysqlconn.query(`SELECT * FROM url WHERE shorturl = ?`, [key]);
-        if (rows.length == 0) {
-            await mysqlconn.query(`
-                INSERT INTO url (longurl, shorturl)
-                VALUES (?,?)
-                `, [url, key])
-            return new Response(JSON.stringify({ message: "URL successfully added" }), { status: 200 });
-        }
-        else {
-            return new Response(JSON.stringify({ message: "Key is already exist" }), { status: 400 });
-        }
+        const message = await addUrl(url, key);
+        return new Response(JSON.stringify({ message }), { status: 200 });
     } catch (error) {
         console.error("Got an error!!!");
         console.log(error);
-        return new Response(JSON.stringify({ message: "something went wrong" }), { status: 500 });
+        let message = "something went wrong";
+        if (error.message === "Key already exists") {
+            message = "Key is already exist";
+        }
+        return new Response(JSON.stringify({ message }), { status: 400 });
     }
-}
+};
 
-// @ts-ignore
+
 export const DELETE = async ({ request }) => {
-    let mysqlconn = mysqlconnFn();
     try {
         const body = await request.json();
         const id = body.id;
-        await mysqlconn.query(`DELETE FROM url WHERE id = ?`, [id]);
-        return new Response(JSON.stringify({ message: "URL successfully deleted" }), { status: 200 });
+        const message = await deleteUrl(id);
+        return new Response(JSON.stringify({ message }), { status: 200 });
     } catch (error) {
         console.error("Got an error!!!");
         console.log(error);
         return new Response(JSON.stringify({ message: "something went wrong" }), { status: 500 });
     }
-}
+};
