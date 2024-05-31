@@ -1,29 +1,24 @@
 // @ts-nocheck
-import { mysqlconnFn } from "$lib/db/mysql";
+import { getUrlByKey, updateUrlCount } from "$lib/db/services";
+
 
 export const GET = async ({ params }) => {
     const { key } = params;
-    let mysqlconn = mysqlconnFn();
     try {
-        let [rows] = await mysqlconn.query(`SELECT * FROM url WHERE shorturl = ?`, [key]);
-        if (rows.length === 0) {
-            return new Response(JSON.stringify({ error: 'Not Found' }));
+        const url = await getUrlByKey(key);
+        if (!url) {
+            return new Response(JSON.stringify({ error: 'Not Found' }), { status: 404 });
         }
-
-        const url = rows[0].longurl;
-        console.log(rows[0].count)
-        await mysqlconn.query( `UPDATE url SET count = ${rows[0].count+1} WHERE id = ${rows[0].id}`);
-
+        await updateUrlCount(url.id);
         return new Response(null, {
             status: 302,
             headers: {
-                'Location': url
+                'Location': url.longurl
             }
         });
-    }
-    catch (err) {
+    } catch (error) {
         console.error("Got an error!!!");
-        console.log(err);
+        console.log(error);
         return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
             status: 500,
             headers: {
